@@ -1,4 +1,29 @@
 package taskManager.model;
 
-public class Transaction {
+import taskManager.util.Summary;
+import taskManager.util.TransType;
+
+import java.time.LocalDateTime;
+
+public class Transaction extends BaseItem implements Summary {
+
+    private String reference;
+    private double amount;
+    private TransType type;
+
+    public Transaction(String reference, double amount, TransType type){
+        super(LocalDateTime.now());
+        this.reference = reference;
+        this.amount = amount;
+        this.type = type;
+    }
+
+    public String getDetails(){
+        return String.format("%-4d Transaction: %s - %.2f || %s || Date: %s", getId(), reference, amount, type, getDate());
+    }
+
+    @Override
+    public String getSummary(){
+        return String.format("Transaction: %s - %.2f || %s", reference, amount, type);
+    }
 }

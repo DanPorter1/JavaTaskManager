@@ -1,4 +1,4 @@
-package taskManager.database;
+package taskManager.util;
 
 public class DBConnection {
 }
