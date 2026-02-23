@@ -1,5 +1,6 @@
 package taskManager.database;
 
+import taskManager.exception.TaskNotFound;
 import taskManager.model.Task;
 import taskManager.util.Priority;
 import taskManager.util.Status;
@@ -35,10 +36,14 @@ public class TaskData implements DatabaseActions<Task> {
     public void delete(int id) {
         String sql = "DELETE FROM tasks WHERE id = ?";
         try (Connection conn = getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement(sql))
-        {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
             preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
+            int rows = preparedStatement.executeUpdate();
+            if (rows == 0) {
+                throw new TaskNotFound("Task not found with ID: " + id);
+            }
+        } catch (TaskNotFound e) {
+            System.err.println(e.getMessage());
         } catch (SQLException e) {
             System.err.println("Error Deleting : " + e.getMessage());
         }
@@ -68,10 +73,12 @@ public class TaskData implements DatabaseActions<Task> {
         String sql = "SELECT * FROM tasks";
         try (Connection conn = getConnection();
              Statement statement = conn.createStatement();
-             ResultSet rs = statement.executeQuery(sql))
-        {
+             ResultSet rs = statement.executeQuery(sql)) {
+            if (!rs.next()) {
+                throw new TaskNotFound("No tasks found");
+            }
             while (rs.next()) {
-                Task task = new Task (
+                Task task = new Task(
                         rs.getString("title"),
                         rs.getString("description"),
                         Priority.valueOf(rs.getString("priority")),
@@ -80,6 +87,8 @@ public class TaskData implements DatabaseActions<Task> {
                 task.setId(rs.getInt("id"));
                 allTasks.add(task);
             }
+        } catch (TaskNotFound e) {
+            System.err.println("No tasks found. " + e.getMessage());
         } catch (SQLException e) {
             System.err.println("SQL Error: " + e.getMessage());
         }

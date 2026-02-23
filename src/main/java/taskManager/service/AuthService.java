@@ -8,7 +8,8 @@ public class AuthService {
     private final UserData ud = new UserData();
 
     public boolean checkUserExist(String username, String password) {
-        if (!ud.getUserCheck(username)) {
+        if (ud.getUserCheck(username)) {
+            System.err.println("DEGUB: SHOULD NOT SHOW");
             User user = new User(username, password);
             ud.insert(user);
             return true;

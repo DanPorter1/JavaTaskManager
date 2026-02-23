@@ -1,5 +1,7 @@
 package taskManager.database;
 
+import taskManager.exception.InvalidPassword;
+import taskManager.exception.UsernameAlreadyUsed;
 import taskManager.model.User;
 
 import java.sql.*;
@@ -51,16 +53,20 @@ public class UserData implements DatabaseActions<User> {
     public boolean getUserCheck(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
         try (Connection conn = getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(sql))
-        {
-             preparedStatement.setString(1, username);
-             try (ResultSet rs = preparedStatement.executeQuery()) {
-                 return rs.next();
-             }
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setString(1, username);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    throw new UsernameAlreadyUsed("Username already in use please try a different username.");
+                }
+            }
+        } catch (UsernameAlreadyUsed e) {
+            System.err.println(e.getMessage());
+//            return false;
         } catch (SQLException e) {
             System.err.println("Error getting username : " + e.getMessage());
-            return false;
         }
+        return false;
     }
 
     public User login(String username, String password) {
@@ -72,10 +78,14 @@ public class UserData implements DatabaseActions<User> {
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     return new User(rs.getString("username"), rs.getString("password"));
+                } else {
+                    throw new InvalidPassword("Invalid Credentials");
                 }
             }
+        } catch (InvalidPassword e) {
+            System.err.println(e.getMessage());
         } catch (SQLException e) {
-            System.err.println("Login DB Error: " + e.getMessage());
+            System.err.println("Error Accessing DB: " + e.getMessage());
         }
         return null;
     }

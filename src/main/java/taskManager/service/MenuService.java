@@ -30,16 +30,12 @@ public class MenuService {
                     System.out.println("Log in successful");
                     loggedIn = true;
                     authMenu = false;
-                } else {
-                    System.err.println("Invalid credentials");}
-                }
+                }}
                 case 2 -> { if (createUser()) {
                     System.out.println("User Created ");
                     loggedIn = true;
                     authMenu = false;
-                } else {
-                    System.err.println("Username already Taken");}
-                }
+                }}
                 case 0 -> authMenu = false;
                 default -> System.out.println("Please select an option");
             }
