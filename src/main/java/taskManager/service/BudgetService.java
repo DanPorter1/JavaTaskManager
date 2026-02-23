@@ -1,6 +1,5 @@
 package taskManager.service;
 
-import taskManager.model.Task;
 import taskManager.model.Transaction;
 
 import java.util.ArrayList;

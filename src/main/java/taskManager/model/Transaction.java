@@ -12,14 +12,13 @@ public class Transaction extends BaseItem implements Summary {
     private TransType type;
 
     public Transaction(String reference, double amount, TransType type){
-        super(LocalDateTime.now());
         this.reference = reference;
         this.amount = amount;
         this.type = type;
     }
 
     public String getDetails(){
-        return String.format("%-4d Transaction: %s - %.2f || %s || Date: %s", getId(), reference, amount, type, getDate());
+        return String.format("%-4d Transaction: %s - %.2f || %s", getId(), reference, amount, type);
     }
 
     @Override

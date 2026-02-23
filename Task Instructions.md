@@ -35,7 +35,7 @@ This project is designed to assess the following Core Java topics:
 
 ### 1. User Management
 - User can register
-- User can login
+- User can log in
 - Store user data in a database using JDBC
 - Validate login credentials
 

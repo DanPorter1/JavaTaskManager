@@ -5,7 +5,6 @@ import taskManager.util.Status;
 import taskManager.util.Summary;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Task extends BaseItem implements Summary {
 
@@ -15,22 +14,34 @@ public class Task extends BaseItem implements Summary {
     private Status statusEnum;
 
     // Constructors
-    public Task(String taskTitle, String taskDetails, Priority priorityEnum, LocalDateTime date) {
-        super(date);
+    public Task(String taskTitle, String taskDetails, Priority priorityEnum, Status statusEnum) {
+        this.taskTitle = taskTitle;
+        this.taskDetails = taskDetails;
+        this.priorityEnum = priorityEnum;
+        this.statusEnum = statusEnum;
+    }
+
+    public Task(String taskTitle, String taskDetails, Priority priorityEnum) {
         this.taskTitle = taskTitle;
         this.taskDetails = taskDetails;
         this.priorityEnum = priorityEnum;
         this.statusEnum = Status.OPEN;
     }
 
-    public Priority getPriority(){return priorityEnum;}
+    public String getTaskTitle() {return taskTitle;}
+
+    public String getTaskDetails() {return taskDetails;}
+
+    public Status getStatusEnum() {return statusEnum;}
+
+    public Priority getPriorityEnum() {return priorityEnum;}
 
     public String getDetails(){
-        return String.format("%-4d Task: %s - %s || %s - %s || Due: %s", getId(), taskTitle, taskDetails, priorityEnum, statusEnum, getDate());
+        return String.format("ID: %-4d Task: %s - %s || %s - %s", getId(), taskTitle, taskDetails, priorityEnum, statusEnum);
     }
 
     @Override
     public String getSummary(){
-        return String.format("Task: %s - %s || %s - %s || Due: %s", taskTitle, taskDetails, priorityEnum, statusEnum, getDate());
+        return String.format("Task: %s - %s || %s - %s", taskTitle, taskDetails, priorityEnum, statusEnum);
     }
 }

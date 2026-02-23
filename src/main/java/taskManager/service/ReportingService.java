@@ -1,15 +1,13 @@
 package taskManager.service;
-import org.w3c.dom.ls.LSOutput;
 import taskManager.model.Task;
 import taskManager.util.Priority;
+import taskManager.util.Status;
 import taskManager.util.Summary;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ReportingService {
 
-    public ReportingService(){};
+    public ReportingService(){}
 
     public void getReport(List<Summary> summary){
         System.out.println("=== All Items ===");
@@ -17,24 +15,46 @@ public class ReportingService {
                 .forEach(i -> System.out.println(i.getSummary()));
     }
 
+    public void getOpenReport(List<Task> openList){
+        openList.stream()
+                .filter(i -> i.getStatusEnum() == Status.OPEN)
+                .forEachOrdered(i -> System.out.println(i.getDetails()));
+    }
+
+    public void getOCReport(List<Task> OCList){
+        System.out.println("\n=== Tasks by Status ===");
+        if (OCList.stream().anyMatch(i -> i.getStatusEnum() == Status.OPEN)) {
+            System.out.println("== Open Tasks ==");
+            OCList.stream()
+                    .filter(i -> i.getStatusEnum() == Status.OPEN)
+                    .forEachOrdered(i -> System.out.println(i.getDetails()));
+        }
+        if (OCList.stream().anyMatch(i -> i.getStatusEnum() == Status.CLOSED)) {
+            System.out.println("== Open Tasks ==");
+            OCList.stream()
+                    .filter(i -> i.getStatusEnum() == Status.CLOSED)
+                    .forEachOrdered(i -> System.out.println(i.getDetails()));
+        }
+    }
+
     public void getTaskPriorityReport(List<Task> tasks) {
         System.out.println("\n=== TASKS BY PRIORITY ===");
-        if (tasks.stream().anyMatch(i -> i.getPriority() == Priority.HIGH)) {
+        if (tasks.stream().anyMatch(i -> i.getPriorityEnum() == Priority.HIGH)) {
             System.out.println("== High Priority ==");
             tasks.stream()
-                    .filter(i -> i.getPriority() == (Priority.HIGH))
+                    .filter(i -> i.getPriorityEnum() == (Priority.HIGH))
                     .forEach(i -> System.out.println(i.getSummary()));
         }
-        if (tasks.stream().anyMatch(i -> i.getPriority() == Priority.MEDIUM)) {
+        if (tasks.stream().anyMatch(i -> i.getPriorityEnum() == Priority.MEDIUM)) {
             System.out.println("== Medium Priority ==");
             tasks.stream()
-                    .filter(i -> i.getPriority() == (Priority.MEDIUM))
+                    .filter(i -> i.getPriorityEnum() == (Priority.MEDIUM))
                     .forEach(i -> System.out.println(i.getSummary()));
         }
-        if (tasks.stream().anyMatch(i -> i.getPriority() == Priority.LOW)) {
+        if (tasks.stream().anyMatch(i -> i.getPriorityEnum() == Priority.LOW)) {
             System.out.println("== Low Priority ==");
             tasks.stream()
-                    .filter(i -> i.getPriority() == (Priority.LOW))
+                    .filter(i -> i.getPriorityEnum() == (Priority.LOW))
                     .forEach(i -> System.out.println(i.getSummary()));
         }
     }
