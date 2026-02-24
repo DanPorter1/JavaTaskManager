@@ -1,8 +1,10 @@
 package taskManager.service;
 
 import taskManager.database.TaskData;
+import taskManager.exception.TaskNotFound;
 import taskManager.model.Task;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class TaskService {
@@ -13,25 +15,29 @@ public class TaskService {
         td.insert(t);
     }
 
-    public List<Task> getAllTasks() {
-        return td.getAllTasks();
+    public List<Task> getAllTasks() throws SQLException, TaskNotFound {
+        List<Task> tasks = td.getAllTasks();
+        if (tasks.isEmpty()) {
+            throw new TaskNotFound("No tasks found");
+        }
+        return tasks;
     }
 
-    public void removeTask(int id) {
+    public void removeTask(int id) throws SQLException {
         td.delete(id);
     }
 
-    public void view() {
+    public void view() throws SQLException, TaskNotFound {
         List<Task> tasks = td.getAllTasks();
         if (tasks.isEmpty()) {
-            System.out.println("=== No Current Tasks ===");
+            throw new TaskNotFound("No tasks found");
         }
         else {
             tasks.forEach(i -> System.out.println(i.getDetails()));
         }
     }
 
-    public void markComplete(int id) {
+    public void markComplete(int id) throws SQLException, TaskNotFound {
         td.updateComplete(id);
     }
 

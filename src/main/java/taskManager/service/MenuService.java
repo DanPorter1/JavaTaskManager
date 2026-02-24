@@ -1,11 +1,16 @@
 package taskManager.service;
 
+import taskManager.exception.DataNotSaved;
+import taskManager.exception.InvalidPassword;
 import taskManager.exception.TaskNotFound;
+import taskManager.exception.UsernameAlreadyUsed;
 import taskManager.model.Task;
 import taskManager.model.Transaction;
 import taskManager.util.Priority;
 import taskManager.util.Summary;
 import taskManager.util.TransType;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,69 +21,112 @@ public class MenuService {
     private final BudgetService bs = new BudgetService();
     private final AuthService as = new AuthService();
 
-    public void mainMenu() {
-
-        boolean loggedIn = false;
+    public void authMenu() {
         boolean authMenu = true;
         while (authMenu) {
-            System.out.println("\n=== TASK MANAGER ===\nYou need to log in or register before continuing");
-            System.out.println("1. Log in\n2. Register\n0. Exit");
+            System.out.println("\n=== TASK MANAGER ===");
+            System.out.println("You need to log in or register before continuing");
+            System.out.println("1. Log in");
+            System.out.println("2. Register");
+            System.out.println("0. Exit");
             int choice = in.readInt("Select an option");
             switch (choice) {
                 case 1 -> { if (login()) {
                     System.out.println("Log in successful");
-                    loggedIn = true;
                     authMenu = false;
+                    mainMenu();
                 }}
                 case 2 -> { if (createUser()) {
                     System.out.println("User Created ");
-                    loggedIn = true;
                     authMenu = false;
                 }}
                 case 0 -> authMenu = false;
                 default -> System.out.println("Please select an option");
             }
         }
+    }
 
-        boolean running = loggedIn;
-//        addTestData();
-
+    private void mainMenu() {
+        boolean running = true;
         while (running) {
-            System.out.println("\n--- TASK MANAGER MENU ---");
-            System.out.println("1. Add New Task");
-            System.out.println("2. Remove Task");
-            System.out.println("3. Mark entry as complete");
-            System.out.println("4. View All Tasks");
-            System.out.println("5. View Task Priority Report");
-            System.out.println("6. Run Budget Report");
-            System.out.println("7. View all entries");
+            System.out.println("\n--- TASK MANAGER MAIN MENU ---");
+            System.out.println("1. Tasks");
+            System.out.println("2. Budget");
+            System.out.println("3. All Tasks View");
+            System.out.println("4. All Transaction View");
+            System.out.println("5. All Summary");
+            System.out.println("6. TESTING  --- ADD SAMPLE DATA ");
             System.out.println("0. Exit");
 
             int choice = in.readInt("Select an option");
-
             switch (choice) {
-                case 1 -> handleAddTask();
-                case 2 -> {
-                    ts.view();
-                    try {
-                        ts.removeTask(in.readInt("Enter ID to remove"));
-                    } catch (TaskNotFound e) {
-                        System.err.println(e.getMessage());
-                    }
+                case 1 -> taskMenu();
+                case 2 -> budgetMenu();
+                case 3 -> runTaskReport();
+                case 4 -> System.out.println("Feature coming soon!");
+                case 5 -> runTaskReport(); //TODO Update with budget
+                case 6 -> addTestData();
+                case 0 -> running = false;
+                default -> System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    private void taskMenu() {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- TASK SUB-MENU ---");
+            System.out.println("1. Add New Task");
+            System.out.println("2. Remove Task");
+            System.out.println("3. Mark Complete");
+            System.out.println("4. View Open");
+            System.out.println("5. View Closed");
+            System.out.println("6. View All");
+            System.out.println("7. View High Priority");
+            System.out.println("8. Priority Report");
+            System.out.println("0. Back");
+
+            int choice = in.readInt("Select");
+            try {
+                switch (choice) {
+                    case 1 -> handleAddTask();
+                    case 2 -> removeTask();
+                    case 3 -> updateTask();
+                    case 4 -> runOpenReport();
+                    case 5 -> runOCReport(); //TODO Update with Closed
+                    case 6 -> rs.getOCReport(ts.getAllTasks());
+                    case 7 -> rs.getTaskPriorityReport(ts.getAllTasks()); //TODO Update with High Priority
+                    case 8 -> rs.getTaskPriorityReport(ts.getAllTasks());
+                    case 0 -> back = true;
                 }
-                case 3 -> {
-                    runOpenReport();
-                    updateTask();
-                }
-                case 4 -> runOCReport(); // Report Logic
-                case 5 -> rs.getTaskPriorityReport(ts.getAllTasks());
-                case 6 -> System.out.println("Nothing here yet");
-                case 7 -> runTaskReport();
-                case 0, -1 -> running = false;
+            } catch (SQLException | TaskNotFound e) {
+                System.err.println(e.getMessage());
+            }
+        }
+    }
+
+    private void budgetMenu() {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- BUDGET SUB-MENU ---");
+            System.out.println("1. Add Outgoing");
+            System.out.println("2. Add Incoming");
+            System.out.println("3. View Outgoing");
+            System.out.println("4. View Incoming");
+            System.out.println("5. View Month");
+            System.out.println("0. Back");
+
+            int choice = in.readInt("Select");
+            switch (choice) {
+                case 1 -> System.out.println("Feature coming soon!");
+                case 2 -> System.out.println("Feature coming soon!");
+                case 3 -> System.out.println("Feature coming soon!");
+                case 4 -> System.out.println("Feature coming soon!");
+                case 5 -> System.out.println("Feature coming soon!");
+                case 0 -> back = true;
                 default -> System.out.println("Feature coming soon!");
             }
         }
-        System.out.println("Goodbye!");
     }
 
     private void addTestData(){
@@ -106,37 +154,69 @@ public class MenuService {
     }
 
     private void runTaskReport() {
-        List<Summary> summaryList = new ArrayList<>(ts.getAllTasks());
-        rs.getReport(summaryList);
+        try {
+            List<Summary> summaryList = new ArrayList<>(ts.getAllTasks());
+            rs.getReport(summaryList);
+        } catch (SQLException | TaskNotFound e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private void runOpenReport() {
-        List<Task> openList = new ArrayList<>(ts.getAllTasks());
-        rs.getOpenReport(openList);
+        try {
+            List<Task> openList = new ArrayList<>(ts.getAllTasks());
+            rs.getOpenReport(openList);
+        } catch (TaskNotFound | SQLException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private void runOCReport() {
-        List<Task> OCTaskList = new ArrayList<>(ts.getAllTasks());
-        rs.getOCReport(OCTaskList);
+        try {
+            List<Task> OCTaskList = new ArrayList<>(ts.getAllTasks());
+            rs.getOCReport(OCTaskList);
+        } catch (SQLException | TaskNotFound e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    private boolean createUser(){
+    private boolean createUser() {
         String username = in.readString("Enter a username");
         String password = in.readString("Enter a password");
-        return as.checkUserExist(username, password);
+        try {
+            return as.checkUserExist(username, password);
+        } catch (UsernameAlreadyUsed | SQLException e) {
+            System.err.println("Unable to register successfully : " + e.getMessage());
+            return false;
+        }
     }
 
     private boolean login() {
         String username = in.readString("Enter a username");
         String password = in.readString("Enter a password");
-        return as.login(username, password);
+        try {
+            return as.login(username, password);
+        } catch (InvalidPassword | SQLException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
     }
 
     private void updateTask() {
-        int id = in.readInt("Enter id to update");
         try {
+            rs.getOpenReport(ts.getAllTasks());
+            int id = in.readInt("Enter id to update");
             ts.markComplete(id);
-        } catch (TaskNotFound e){
+        } catch (TaskNotFound | SQLException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private void removeTask() {
+        try {
+            rs.getOCReport(ts.getAllTasks());
+            ts.removeTask(in.readInt("ID to remove"));
+        } catch (SQLException | TaskNotFound e) {
             System.err.println(e.getMessage());
         }
     }

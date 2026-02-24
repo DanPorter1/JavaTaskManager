@@ -1,5 +1,6 @@
 package taskManager.database;
 
+import taskManager.exception.DataNotSaved;
 import taskManager.exception.InvalidPassword;
 import taskManager.exception.UsernameAlreadyUsed;
 import taskManager.model.User;
@@ -11,16 +12,19 @@ import static taskManager.util.DBConnection.getConnection;
 public class UserData implements DatabaseActions<User> {
 
     @Override
-    public void insert(User item) {
+    public void insert(User item) throws DataNotSaved, SQLException {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql))
         {
             preparedStatement.setString(1, item.getUsername());
             preparedStatement.setString(2, item.getPassword());
-            preparedStatement.executeUpdate();
+            int r = preparedStatement.executeUpdate();
+            if (r == 0) {
+                throw new DataNotSaved("Failed to save data");
+            }
         } catch (SQLException e) {
-            System.err.println("Error inserting user : " + e.getMessage());
+            throw new SQLException("Error saving data");
         }
     }
 
@@ -34,7 +38,7 @@ public class UserData implements DatabaseActions<User> {
 
     }
 
-    public void createUserTable(){
+    public void createUserTable() throws SQLException {
         String sql = """
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,11 +50,11 @@ public class UserData implements DatabaseActions<User> {
         {
             statement.execute(sql);
         } catch (SQLException e) {
-            System.err.println("Error Creating User Table : " + e.getMessage());
+            throw new SQLException("Failed to create User Table");
         }
     }
 
-    public boolean getUserCheck(String username) {
+    public boolean getUserCheck(String username) throws UsernameAlreadyUsed, SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
         try (Connection conn = getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
@@ -60,16 +64,13 @@ public class UserData implements DatabaseActions<User> {
                     throw new UsernameAlreadyUsed("Username already in use please try a different username.");
                 }
             }
-        } catch (UsernameAlreadyUsed e) {
-            System.err.println(e.getMessage());
-//            return false;
         } catch (SQLException e) {
-            System.err.println("Error getting username : " + e.getMessage());
+            throw new SQLException("Unable to access data");
         }
         return false;
     }
 
-    public User login(String username, String password) {
+    public User login(String username, String password) throws InvalidPassword, SQLException {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (Connection conn = getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
@@ -82,11 +83,8 @@ public class UserData implements DatabaseActions<User> {
                     throw new InvalidPassword("Invalid Credentials");
                 }
             }
-        } catch (InvalidPassword e) {
-            System.err.println(e.getMessage());
         } catch (SQLException e) {
-            System.err.println("Error Accessing DB: " + e.getMessage());
+            throw new SQLException("Error Accessing DB");
         }
-        return null;
     }
 }

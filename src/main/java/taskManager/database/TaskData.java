@@ -33,7 +33,7 @@ public class TaskData implements DatabaseActions<Task> {
     public void update(Task t){}
 
     @Override
-    public void delete(int id) {
+    public void delete(int id) throws SQLException {
         String sql = "DELETE FROM tasks WHERE id = ?";
         try (Connection conn = getConnection();
             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
@@ -43,12 +43,12 @@ public class TaskData implements DatabaseActions<Task> {
                 throw new TaskNotFound("Task not found with ID: " + id);
             }
         } catch (SQLException e) {
-            System.err.println("Error Deleting : " + e.getMessage());
+            throw new SQLException("Failed to delete task");
         }
     }
 
 
-    public void createTaskTable(){
+    public void createTaskTable() throws SQLException {
         String sql = """
         CREATE TABLE IF NOT EXISTS tasks (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,19 +62,16 @@ public class TaskData implements DatabaseActions<Task> {
         {
             statement.execute(sql);
         } catch (SQLException e) {
-            System.err.println("Setup Error: " + e.getMessage());
+            throw new SQLException("Failed to load DB");
         }
     }
 
-    public List<Task> getAllTasks() {
+    public List<Task> getAllTasks() throws SQLException {
         List<Task> allTasks = new ArrayList<>();
         String sql = "SELECT * FROM tasks";
         try (Connection conn = getConnection();
              Statement statement = conn.createStatement();
              ResultSet rs = statement.executeQuery(sql)) {
-            if (!rs.next()) {
-                throw new TaskNotFound("No tasks found");
-            }
             while (rs.next()) {
                 Task task = new Task(
                         rs.getString("title"),
@@ -86,12 +83,12 @@ public class TaskData implements DatabaseActions<Task> {
                 allTasks.add(task);
             }
         } catch (SQLException e) {
-            System.err.println("SQL Error: " + e.getMessage());
+            throw new SQLException("Failed to get Task data");
         }
         return allTasks;
     }
 
-    public void updateComplete(int id) {
+    public void updateComplete(int id) throws SQLException {
         String sql = "UPDATE tasks SET status = ? WHERE id = ?";
         try (Connection conn = getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql))
@@ -103,7 +100,7 @@ public class TaskData implements DatabaseActions<Task> {
                 throw new TaskNotFound("No task found with ID : " + id);
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            throw new SQLException("Failed to update Task");
         }
     }
 }

@@ -30,7 +30,7 @@ public class ReportingService {
                     .forEachOrdered(i -> System.out.println(i.getDetails()));
         }
         if (OCList.stream().anyMatch(i -> i.getStatusEnum() == Status.CLOSED)) {
-            System.out.println("== Open Tasks ==");
+            System.out.println("== Closed Tasks ==");
             OCList.stream()
                     .filter(i -> i.getStatusEnum() == Status.CLOSED)
                     .forEachOrdered(i -> System.out.println(i.getDetails()));

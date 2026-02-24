@@ -6,6 +6,8 @@ import taskManager.database.UserData;
 import taskManager.service.*;
 import taskManager.util.DBConnection;
 
+import java.sql.SQLException;
+
 
 public class Main {
 
@@ -18,13 +20,22 @@ public class Main {
         // New TaskDBCon
         TaskData tDB = new TaskData();
         // Create Task Table if not exist
-        tDB.createTaskTable();
+        try {
+            tDB.createTaskTable();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
         // New UserDBCon
         UserData uDB = new UserData();
         // Create User Table if not exist
-        uDB.createUserTable();
+        try {
+            uDB.createUserTable();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
         // Start Main Menu
-        menu.mainMenu();
+        menu.authMenu();
+
     }
 
 }
