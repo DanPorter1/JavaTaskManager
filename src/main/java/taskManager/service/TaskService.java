@@ -31,6 +31,10 @@ public class TaskService {
         }
     }
 
+    public void markComplete(int id) {
+        td.updateComplete(id);
+    }
+
 //    public String findTask(int id) throws InvalidID {
 //        Task t = tasks.stream().filter(i -> i.getId() == id)
 //                .findFirst().orElseThrow(() -> new InvalidID("Invalid ID for task"));

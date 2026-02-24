@@ -23,10 +23,8 @@ public class Main {
         UserData uDB = new UserData();
         // Create User Table if not exist
         uDB.createUserTable();
-
-
+        // Start Main Menu
         menu.mainMenu();
-
     }
 
 }

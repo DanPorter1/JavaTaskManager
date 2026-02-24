@@ -1,12 +1,11 @@
 package taskManager.service;
 
+import taskManager.exception.TaskNotFound;
 import taskManager.model.Task;
 import taskManager.model.Transaction;
 import taskManager.util.Priority;
 import taskManager.util.Summary;
 import taskManager.util.TransType;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +60,11 @@ public class MenuService {
                 case 1 -> handleAddTask();
                 case 2 -> {
                     ts.view();
-                    ts.removeTask(in.readInt("Enter ID to remove"));
+                    try {
+                        ts.removeTask(in.readInt("Enter ID to remove"));
+                    } catch (TaskNotFound e) {
+                        System.err.println(e.getMessage());
+                    }
                 }
                 case 3 -> {
                     runOpenReport();
@@ -131,6 +134,10 @@ public class MenuService {
 
     private void updateTask() {
         int id = in.readInt("Enter id to update");
-
+        try {
+            ts.markComplete(id);
+        } catch (TaskNotFound e){
+            System.err.println(e.getMessage());
+        }
     }
 }

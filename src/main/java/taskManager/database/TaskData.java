@@ -42,8 +42,6 @@ public class TaskData implements DatabaseActions<Task> {
             if (rows == 0) {
                 throw new TaskNotFound("Task not found with ID: " + id);
             }
-        } catch (TaskNotFound e) {
-            System.err.println(e.getMessage());
         } catch (SQLException e) {
             System.err.println("Error Deleting : " + e.getMessage());
         }
@@ -87,11 +85,25 @@ public class TaskData implements DatabaseActions<Task> {
                 task.setId(rs.getInt("id"));
                 allTasks.add(task);
             }
-        } catch (TaskNotFound e) {
-            System.err.println("No tasks found. " + e.getMessage());
         } catch (SQLException e) {
             System.err.println("SQL Error: " + e.getMessage());
         }
         return allTasks;
+    }
+
+    public void updateComplete(int id) {
+        String sql = "UPDATE tasks SET status = ? WHERE id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql))
+        {
+            preparedStatement.setString(1, Status.CLOSED.name());
+            preparedStatement.setInt(2, id);
+            int rows = preparedStatement.executeUpdate();
+            if (rows == 0 ) {
+                throw new TaskNotFound("No task found with ID : " + id);
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

@@ -9,7 +9,6 @@ public class AuthService {
 
     public boolean checkUserExist(String username, String password) {
         if (ud.getUserCheck(username)) {
-            System.err.println("DEGUB: SHOULD NOT SHOW");
             User user = new User(username, password);
             ud.insert(user);
             return true;
