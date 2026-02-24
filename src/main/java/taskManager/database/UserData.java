@@ -24,7 +24,7 @@ public class UserData implements DatabaseActions<User> {
                 throw new DataNotSaved("Failed to save data");
             }
         } catch (SQLException e) {
-            throw new SQLException("Error saving data");
+            throw new SQLException("Error saving data" + e);
         }
     }
 
@@ -50,7 +50,7 @@ public class UserData implements DatabaseActions<User> {
         {
             statement.execute(sql);
         } catch (SQLException e) {
-            throw new SQLException("Failed to create User Table");
+            throw new SQLException("Failed to create User Table" + e);
         }
     }
 
@@ -65,7 +65,7 @@ public class UserData implements DatabaseActions<User> {
                 }
             }
         } catch (SQLException e) {
-            throw new SQLException("Unable to access data");
+            throw new SQLException("Unable to access data" + e);
         }
         return false;
     }
@@ -84,7 +84,7 @@ public class UserData implements DatabaseActions<User> {
                 }
             }
         } catch (SQLException e) {
-            throw new SQLException("Error Accessing DB");
+            throw new SQLException("Error Accessing DB" + e);
         }
     }
 }

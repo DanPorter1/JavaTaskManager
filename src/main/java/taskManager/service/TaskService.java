@@ -1,6 +1,7 @@
 package taskManager.service;
 
 import taskManager.database.TaskData;
+import taskManager.exception.DataNotSaved;
 import taskManager.exception.TaskNotFound;
 import taskManager.model.Task;
 
@@ -11,7 +12,7 @@ public class TaskService {
 
     private final TaskData td = new TaskData();
 
-    public void addTask(Task t) {
+    public void addTask(Task t) throws SQLException, DataNotSaved {
         td.insert(t);
     }
 

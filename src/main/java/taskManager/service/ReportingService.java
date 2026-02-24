@@ -9,10 +9,9 @@ public class ReportingService {
 
     public ReportingService(){}
 
-    public void getReport(List<Summary> summary){
+    public void getReport(List<? extends Summary> summary){
         System.out.println("=== All Items ===");
-        summary.stream()
-                .forEach(i -> System.out.println(i.getSummary()));
+        summary.forEach(i -> System.out.println(i.getSummary()));
     }
 
     public void getOpenReport(List<Task> openList){

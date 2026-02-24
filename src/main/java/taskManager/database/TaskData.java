@@ -1,5 +1,6 @@
 package taskManager.database;
 
+import taskManager.exception.DataNotSaved;
 import taskManager.exception.TaskNotFound;
 import taskManager.model.Task;
 import taskManager.util.Priority;
@@ -14,7 +15,7 @@ import static taskManager.util.DBConnection.getConnection;
 public class TaskData implements DatabaseActions<Task> {
 
     @Override
-    public void insert(Task t){
+    public void insert(Task t) throws SQLException, DataNotSaved {
         String sql = "INSERT INTO tasks (title, description, priority, status) VALUES (?,?,?,?)";
         try (Connection conn = getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql))
@@ -23,9 +24,12 @@ public class TaskData implements DatabaseActions<Task> {
             preparedStatement.setString(2, t.getTaskDetails());
             preparedStatement.setString(3, t.getPriorityEnum().name());
             preparedStatement.setString(4, t.getStatusEnum().name());
-            preparedStatement.executeUpdate();
+            int r = preparedStatement.executeUpdate();
+            if (r == 0) {
+                throw new DataNotSaved("Failed to save data");
+            }
         } catch (SQLException e) {
-            System.err.println("Error inserting new data: " + e.getMessage());
+            throw new SQLException(e);
         }
     }
 
@@ -43,7 +47,7 @@ public class TaskData implements DatabaseActions<Task> {
                 throw new TaskNotFound("Task not found with ID: " + id);
             }
         } catch (SQLException e) {
-            throw new SQLException("Failed to delete task");
+            throw new SQLException("Failed to delete task" + e);
         }
     }
 
@@ -62,7 +66,7 @@ public class TaskData implements DatabaseActions<Task> {
         {
             statement.execute(sql);
         } catch (SQLException e) {
-            throw new SQLException("Failed to load DB");
+            throw new SQLException("Failed to load DB" + e);
         }
     }
 
@@ -83,7 +87,7 @@ public class TaskData implements DatabaseActions<Task> {
                 allTasks.add(task);
             }
         } catch (SQLException e) {
-            throw new SQLException("Failed to get Task data");
+            throw new SQLException("Failed to get Task data" + e);
         }
         return allTasks;
     }
@@ -100,7 +104,7 @@ public class TaskData implements DatabaseActions<Task> {
                 throw new TaskNotFound("No task found with ID : " + id);
             }
         } catch (SQLException e) {
-            throw new SQLException("Failed to update Task");
+            throw new SQLException("Failed to update Task" + e);
         }
     }
 }

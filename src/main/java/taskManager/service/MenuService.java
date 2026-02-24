@@ -1,5 +1,6 @@
 package taskManager.service;
 
+import taskManager.exception.DataNotSaved;
 import taskManager.exception.InvalidPassword;
 import taskManager.exception.TaskNotFound;
 import taskManager.exception.UsernameAlreadyUsed;
@@ -10,6 +11,7 @@ import taskManager.util.Summary;
 import taskManager.util.TransType;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,6 @@ public class MenuService {
                 }}
                 case 2 -> { if (createUser()) {
                     System.out.println("User Created ");
-                    authMenu = false;
                 }}
                 case 0 -> authMenu = false;
                 default -> System.out.println("Please select an option");
@@ -88,12 +89,12 @@ public class MenuService {
             int choice = in.readInt("Select");
             try {
                 switch (choice) {
-                    case 1 -> handleAddTask();
+                    case 1 -> addTask();
                     case 2 -> removeTask();
                     case 3 -> updateTask();
                     case 4 -> runOpenReport();
                     case 5 -> runClosedReport(); //TODO Update with Closed
-                    case 6 -> rs.getOCReport(ts.getAllTasks());
+                    case 6 -> runOCReport();
                     case 7 -> rs.getTaskPriorityReport(ts.getAllTasks()); //TODO Update with High Priority
                     case 8 -> rs.getTaskPriorityReport(ts.getAllTasks());
                     case 0 -> back = true;
@@ -129,18 +130,22 @@ public class MenuService {
     }
 
     private void addTestData(){
-        ts.addTask(new Task("Test Task", "This is a testing task 1", Priority.LOW));
-        ts.addTask(new Task("Test Task", "This is a testing task 2", Priority.LOW));
-        ts.addTask(new Task("Test Task", "This is a testing task 3", Priority.MEDIUM));
-        ts.addTask(new Task("Test Task", "This is a testing task 4", Priority.HIGH));
-        bs.addTransaction(new Transaction("Car", 1000, TransType.OUTGOING));
-        bs.addTransaction(new Transaction("Phone", 100, TransType.OUTGOING));
-        bs.addTransaction(new Transaction("Food", 50, TransType.OUTGOING));
-        bs.addTransaction(new Transaction("Party", 10, TransType.INCOMING));
+        try {
+            ts.addTask(new Task("Test Task", "This is a testing task 1", Priority.LOW));
+            ts.addTask(new Task("Test Task", "This is a testing task 2", Priority.LOW));
+            ts.addTask(new Task("Test Task", "This is a testing task 3", Priority.MEDIUM));
+            ts.addTask(new Task("Test Task", "This is a testing task 4", Priority.HIGH));
+            bs.addTransaction(new Transaction("Car", 1000, TransType.OUTGOING, LocalDateTime.now()));
+            bs.addTransaction(new Transaction("Phone", 100, TransType.OUTGOING, LocalDateTime.now()));
+            bs.addTransaction(new Transaction("Food", 50, TransType.OUTGOING, LocalDateTime.now()));
+            bs.addTransaction(new Transaction("Party", 10, TransType.INCOMING, LocalDateTime.now()));
+        } catch (SQLException | DataNotSaved e) {
+            System.err.println(e.getMessage());
+        }
 
     }
 
-    private void handleAddTask() {
+    private void addTask() {
         System.out.println("\n--- Create New Task ---");
         String title = in.readString("Enter Title");
         if (title == null) return;
@@ -148,7 +153,11 @@ public class MenuService {
         if (desc == null) return;
         Priority p   = in.readPriority();
         Task newTask = new Task(title, desc, p);
-        ts.addTask(newTask);
+        try {
+            ts.addTask(newTask);
+        } catch (SQLException | DataNotSaved e) {
+            System.err.println(e.getMessage());
+        }
         System.out.println("Task added successfully!");
     }
 
@@ -214,6 +223,9 @@ public class MenuService {
         try {
             rs.getOpenReport(ts.getAllTasks());
             int id = in.readInt("Enter id to update");
+            if (id == -1) {
+                return;
+            }
             ts.markComplete(id);
         } catch (TaskNotFound | SQLException e) {
             System.err.println(e.getMessage());
@@ -223,7 +235,11 @@ public class MenuService {
     private void removeTask() {
         try {
             rs.getOCReport(ts.getAllTasks());
-            ts.removeTask(in.readInt("ID to remove"));
+            int id = in.readInt("ID to remove");
+            if (id == -1) {
+                return;
+            }
+            ts.removeTask(id);
         } catch (SQLException | TaskNotFound e) {
             System.err.println(e.getMessage());
         }
