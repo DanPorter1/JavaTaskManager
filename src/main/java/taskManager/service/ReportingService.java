@@ -21,6 +21,12 @@ public class ReportingService {
                 .forEachOrdered(i -> System.out.println(i.getDetails()));
     }
 
+    public void getClosedReport(List<Task> closedList) {
+        closedList.stream()
+                .filter(i -> i.getStatusEnum() == Status.CLOSED)
+                .forEachOrdered(i -> System.out.println(i.getDetails()));
+    }
+
     public void getOCReport(List<Task> OCList){
         System.out.println("\n=== Tasks by Status ===");
         if (OCList.stream().anyMatch(i -> i.getStatusEnum() == Status.OPEN)) {

@@ -1,6 +1,5 @@
 package taskManager.service;
 
-import taskManager.exception.DataNotSaved;
 import taskManager.exception.InvalidPassword;
 import taskManager.exception.TaskNotFound;
 import taskManager.exception.UsernameAlreadyUsed;
@@ -93,7 +92,7 @@ public class MenuService {
                     case 2 -> removeTask();
                     case 3 -> updateTask();
                     case 4 -> runOpenReport();
-                    case 5 -> runOCReport(); //TODO Update with Closed
+                    case 5 -> runClosedReport(); //TODO Update with Closed
                     case 6 -> rs.getOCReport(ts.getAllTasks());
                     case 7 -> rs.getTaskPriorityReport(ts.getAllTasks()); //TODO Update with High Priority
                     case 8 -> rs.getTaskPriorityReport(ts.getAllTasks());
@@ -167,6 +166,15 @@ public class MenuService {
             List<Task> openList = new ArrayList<>(ts.getAllTasks());
             rs.getOpenReport(openList);
         } catch (TaskNotFound | SQLException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private void runClosedReport() {
+        try {
+            List<Task> closedList = new ArrayList<>(ts.getAllTasks());
+            rs.getClosedReport(closedList);
+        } catch (SQLException | TaskNotFound e) {
             System.err.println(e.getMessage());
         }
     }
